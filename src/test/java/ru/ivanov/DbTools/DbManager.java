@@ -1,4 +1,4 @@
-package ru.ivanov.tools;
+package ru.ivanov.DbTools;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;

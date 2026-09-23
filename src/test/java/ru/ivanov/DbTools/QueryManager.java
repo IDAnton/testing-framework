@@ -1,4 +1,4 @@
-package ru.ivanov.tools;
+package ru.ivanov.DbTools;
 
 import java.io.IOException;
 import java.io.InputStream;

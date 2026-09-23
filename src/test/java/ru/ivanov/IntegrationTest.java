@@ -13,8 +13,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import ru.ivanov.tools.DbManager;
-import ru.ivanov.tools.PostgresConfigurator;
+import ru.ivanov.DbTools.DbManager;
+import ru.ivanov.DbTools.PostgresConfigurator;
 
 import java.time.Duration;
 import java.util.List;
