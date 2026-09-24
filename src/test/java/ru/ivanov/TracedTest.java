@@ -23,12 +23,12 @@ public class TracedTest {
     }
 
     @Test
-    void testNegativeDistributionFailureReport() {
+    void testNegative() {
         log.info("Запуск теста который должен упасть, лог должен сохранится в Allure отчете");
         HttpStepClient.givenWithTrace()
                 .spec(TheInternetSpec.getFailSpec())
                 .when()
-                .get("/status_codes/500")
+                .get()
                 .then()
                 .statusCode(200);
     }
