@@ -16,8 +16,6 @@ public class TracedTest {
                 .get()
                 .then()
                 .statusCode(200);
-
-        // producer.send(KafkaStepClient.createRecordWithTrace("order-topic", "key", "json-body"));
     }
 
     @Test
