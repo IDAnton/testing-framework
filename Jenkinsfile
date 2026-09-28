@@ -1,23 +1,39 @@
 pipeline {
-    agent any
+    tools {
+        dockerTool 'all-docker'
+    }
+
+    agent {
+        docker {
+            image 'eclipse-temurin:25-jdk-noble'
+            args '-v $HOME/.m2:/root/.m2'
+        }
+    }
 
     environment {
         ENV = 'staging'
     }
 
     stages {
-        stage('Run Tests in Docker Container') {
+        stage('Initialize and Environment Check') {
             steps {
-                echo "Запуск автотестов"
-                sh 'chmod +x run_tests.sh'
-                sh './run_tests.sh'
+                echo "Проверяем окружение внутри Docker-контейнера:"
+                sh 'java -version'
+                sh 'mvn -version'
+            }
+        }
+
+        stage('Run Java Automation Tests') {
+            steps {
+                echo "Запуск автотестов на окружении: ${env.ENV}"
+                sh 'mvn test -Dspring.classformat.ignore=true'
             }
         }
     }
 
     post {
         always {
-            echo "Публикация Allure-отчета..."
+            echo "Публикация результатов в Allure..."
             allure includeProperties: false,
                    jdk: '',
                    properties: [],
