@@ -10,19 +10,28 @@ pipeline {
     }
 
     stages {
-        stage('Run Tests via Docker Compose Network') {
+        stage('Run Java 25 and Maven Tests inside Docker') {
+            agent {
+                docker {
+                    image 'maven'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock -e TESTCONTAINERS_RYUK_DISABLED=true -v $HOME/.m2:/root/.m2'
+                }
+            }
             steps {
-                echo "Запуск всей инфраструктуры и тестов в единой Docker Compose сети..."
+                echo "Контейнер 'Maven + Java 25' успешно запущен"
+                echo "Проверяем версии инструментов:"
+                sh 'java -version'
+                sh 'mvn -version'
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh 'rm -rf target/allure-results && mkdir -p target/allure-results'
-
-                    sh 'docker compose up --build --exit-code-from app-tests'
+                    echo "Запуск автотестов..."
+                    sh 'mvn test -Dspring.classformat.ignore=true -Dallure.results.directory=target/allure-results'
                 }
             }
         }
 
         stage('Generate Allure Report') {
+            agent any
             steps {
                 echo "Сборка результатов и публикация Allure-отчета..."
                 allure includeProperties: false,
@@ -31,13 +40,6 @@ pipeline {
                        reportBuildPolicy: 'ALWAYS',
                        results: [[path: 'target/allure-results']]
             }
-        }
-    }
-
-    post {
-        always {
-            echo "Очистка Docker-контейнеров..."
-            sh 'docker compose down -v'
         }
     }
 }
