@@ -1,15 +1,11 @@
 package ru.ivanov;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +17,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import ru.ivanov.queues.Message;
 import ru.ivanov.queues.OrderWorker;
+import ru.ivanov.queues.OrderWorkerConfigurer;
 import ru.ivanov.tools.AllureTraceExtension;
 
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -50,23 +46,10 @@ public class KafkaStepClientTest {
     @BeforeEach
     void setUp() {
         String bootstrapServers = kafka.getBootstrapServers();
-
         worker = new OrderWorker(bootstrapServers, MAIN_TOPIC, DLQ_TOPIC);
         worker.start();
-
-        Properties prodProps = new Properties();
-        prodProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        prodProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        prodProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        testProducer = new KafkaProducer<>(prodProps);
-
-        Properties consProps = new Properties();
-        consProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        consProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test-dlq-validator-group");
-        consProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        consProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        consProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        testDlqConsumer = new KafkaConsumer<>(consProps);
+        testProducer = OrderWorkerConfigurer.createKafkaProducer(bootstrapServers);
+        testDlqConsumer = OrderWorkerConfigurer.createKafkaConsumer(bootstrapServers);
         testDlqConsumer.subscribe(Collections.singletonList(DLQ_TOPIC));
     }
 
