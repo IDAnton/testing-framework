@@ -14,11 +14,10 @@ pipeline {
             agent {
                 dockerContainer {
                     image 'eclipse-temurin:25-jdk-noble'
-                    args '-v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
-                echo "Проверяем окружение внутри Docker-контейнера:"
+                echo "Проверяем окружение внутри Docker контейнера:"
                 sh 'java -version'
                 sh 'mvn -version'
             }
@@ -28,7 +27,6 @@ pipeline {
             agent {
                 dockerContainer {
                     image 'eclipse-temurin:25-jdk-noble'
-                    args '-v $HOME/.m2:/root/.m2'
                 }
             }
             steps {
