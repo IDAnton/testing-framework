@@ -10,42 +10,34 @@ pipeline {
     }
 
     stages {
-        stage('Initialize and Environment Check') {
-            agent {
-                dockerContainer {
-                    image 'eclipse-temurin:25-jdk-noble'
-                }
-            }
+        stage('Run Tests via Docker Compose Network') {
             steps {
-                echo "Проверяем окружение внутри Docker контейнера:"
-                sh 'java -version'
-                sh 'mvn -version'
-            }
-        }
+                echo "Запуск всей инфраструктуры и тестов в единой Docker Compose сети..."
 
-        stage('Run Java Automation Tests') {
-            agent {
-                dockerContainer {
-                    image 'eclipse-temurin:25-jdk-noble'
-                }
-            }
-            steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    echo "Запуск автотестов на окружении: ${env.ENV}"
-                    sh 'mvn test -Dspring.classformat.ignore=true'
+                    sh 'rm -rf target/allure-results && mkdir -p target/allure-results'
+
+                    sh 'docker compose up --build --exit-code-from app-tests'
                 }
             }
         }
 
         stage('Generate Allure Report') {
             steps {
-                echo "Публикация результатов в Allure на хостовом агенте..."
+                echo "Сборка результатов и публикация Allure-отчета..."
                 allure includeProperties: false,
                        jdk: '',
                        properties: [],
                        reportBuildPolicy: 'ALWAYS',
                        results: [[path: 'target/allure-results']]
             }
+        }
+    }
+
+    post {
+        always {
+            echo "Очистка Docker-контейнеров..."
+            sh 'docker compose down -v'
         }
     }
 }
