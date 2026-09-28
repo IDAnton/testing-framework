@@ -33,12 +33,14 @@ pipeline {
 
     post {
         always {
-            echo "Публикация результатов в Allure..."
-            allure includeProperties: false,
-                   jdk: '',
-                   properties: [],
-                   reportBuildPolicy: 'ALWAYS',
-                   results: [[path: 'target/allure-results']]
+            node {
+                echo "Публикация результатов в Allure"
+                allure includeProperties: false,
+                       jdk: '',
+                       properties: [],
+                       reportBuildPolicy: 'ALWAYS',
+                       results: [[path: 'target/allure-results']]
+            }
         }
     }
 }
