@@ -3,12 +3,7 @@ pipeline {
         dockerTool 'all-docker'
     }
 
-    agent {
-        docker {
-            image 'eclipse-temurin:25-jdk-noble'
-            args '-v $HOME/.m2:/root/.m2'
-        }
-    }
+    agent any
 
     environment {
         ENV = 'staging'
@@ -16,6 +11,12 @@ pipeline {
 
     stages {
         stage('Initialize and Environment Check') {
+            agent {
+                dockerContainer {
+                    image 'eclipse-temurin:25-jdk-noble'
+                    args '-v $HOME/.m2:/root/.m2'
+                }
+            }
             steps {
                 echo "Проверяем окружение внутри Docker-контейнера:"
                 sh 'java -version'
@@ -24,17 +25,23 @@ pipeline {
         }
 
         stage('Run Java Automation Tests') {
+            agent {
+                dockerContainer {
+                    image 'eclipse-temurin:25-jdk-noble'
+                    args '-v $HOME/.m2:/root/.m2'
+                }
+            }
             steps {
-                echo "Запуск автотестов на окружении: ${env.ENV}"
-                sh 'mvn test -Dspring.classformat.ignore=true'
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    echo "Запуск автотестов на окружении: ${env.ENV}"
+                    sh 'mvn test -Dspring.classformat.ignore=true'
+                }
             }
         }
-    }
 
-    post {
-        always {
-            node {
-                echo "Публикация результатов в Allure"
+        stage('Generate Allure Report') {
+            steps {
+                echo "Публикация результатов в Allure на хостовом агенте..."
                 allure includeProperties: false,
                        jdk: '',
                        properties: [],
