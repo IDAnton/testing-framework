@@ -16,7 +16,7 @@ services:
     image: postgres:15-alpine
     container_name: test_postgres
     env_file:
-      - src/test/resources/API/database.properties
+      - src/test/resources/database.properties
     ports:
       - "5432:5432"
     healthcheck:
