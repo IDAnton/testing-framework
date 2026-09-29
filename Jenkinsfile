@@ -13,7 +13,7 @@ pipeline {
         stage('Run Java 25 and Maven Tests inside Docker') {
             agent {
                 docker {
-                    image 'maven-chrome:jdk-25'
+                    image 'markhobson/maven-chrome:jdk-25'
                     args '-v /var/run/docker.sock:/var/run/docker.sock -e TESTCONTAINERS_RYUK_DISABLED=true -v $HOME/.m2:/root/.m2'
                 }
             }
