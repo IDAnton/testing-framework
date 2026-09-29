@@ -25,7 +25,7 @@ pipeline {
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     echo "Запуск автотестов..."
-                    sh 'mvn test -Dspring.classformat.ignore=true -Dallure.results.directory=target/allure-results'
+                    sh 'mvn test -Dspring.classformat.ignore=true -Dcucumber.plugin=io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm -Dallure.results.directory=target/allure-results'
                 }
             }
         }
