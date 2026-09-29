@@ -13,7 +13,7 @@ pipeline {
         stage('Run Java 25 and Maven Tests inside Docker') {
             agent {
                 docker {
-                    image 'maven'
+                    image 'maven-chrome:jdk-25'
                     args '-v /var/run/docker.sock:/var/run/docker.sock -e TESTCONTAINERS_RYUK_DISABLED=true -v $HOME/.m2:/root/.m2'
                 }
             }
@@ -25,7 +25,7 @@ pipeline {
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     echo "Запуск автотестов..."
-                    sh 'mvn test -Dspring.classformat.ignore=true -Dcucumber.plugin=io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm -Dallure.results.directory=target/allure-results'
+                    sh 'mvn test -Dspring.classformat.ignore=true -Dcucumber.plugin=io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm -Dallure.results.directory=target/allure-results -Dselenide.headless=true'
                 }
             }
         }
