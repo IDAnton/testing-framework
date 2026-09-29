@@ -16,17 +16,12 @@ import java.util.concurrent.CompletableFuture;
 public class AsyncBlackBox {
     @Autowired
     private JdbcTemplate jdbc;
-
     @PostMapping("/trigger")
-    @Async // Эмулируем асинхронную цепочку: HTTP -> Kafka -> Worker
+    @Async
     public CompletableFuture<ResponseEntity<Void>> trigger(
             @RequestHeader("X-Request-Id") String requestId) throws InterruptedException {
-
-        Thread.sleep(1500); // Имитация задержки передачи по Kafka и обработки воркером
-
-// Эмулируем запись "воркером" в БД (таблица events должна быть создана в БД)
+        Thread.sleep(1500);
         jdbc.update("INSERT INTO events (request_id, status) VALUES (?, 'PROCESSED')", requestId);
-
         return CompletableFuture.completedFuture(ResponseEntity.ok().build());
     }
 }
