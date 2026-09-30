@@ -1,7 +1,7 @@
 **Summary:** [API] GET /status_codes/500 эндпоинт возвращает 500 вместо 200
 
 **Environment:**
-- Окружение: Staging (https://the-internet.herokuapp.com)
+- Окружение: https://the-internet.herokuapp.com
 - Версия API: 1.0.0
 - Дата: 2026-09-30
 
